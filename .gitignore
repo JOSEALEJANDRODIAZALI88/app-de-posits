@@ -1,0 +1,19 @@
+.gradle/
+.kotlin/
+.idea/
+local.properties
+**/build/
+*.iml
+
+# Archivos locales de publicación y firma
+/git hub.txt
+keystore.properties
+*.jks
+*.keystore
+
+# Archivos temporales y del sistema
+*.hprof
+.DS_Store
+Thumbs.db
+.cxx/
+.externalNativeBuild/
