@@ -9,7 +9,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 
-val NoteColors = listOf(0xFFFFE082, 0xFFF8BBD0, 0xFFBDF66B, 0xFFB3E5FC, 0xFFD1C4E9)
+val NoteColors = listOf(0xFFFAE17D, 0xFFEFB6B8, 0xFFCCDEAF, 0xFFBBDFF0, 0xFFD6C8E5)
 
 data class Note(
     val id: String = UUID.randomUUID().toString(),

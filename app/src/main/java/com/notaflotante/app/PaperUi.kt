@@ -1,6 +1,5 @@
 package com.notaflotante.app
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,12 +14,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -60,18 +59,14 @@ internal fun Modifier.boardTexture(): Modifier = drawBehind {
 @Composable
 internal fun PaperSurface(color: Int, modifier: Modifier = Modifier, elevation: Dp = 4.dp,
     content: @Composable () -> Unit) {
-    Surface(color = Color(NoteColors[color]), shape = RoundedCornerShape(3.dp), shadowElevation = elevation,
+    val density = LocalDensity.current.density
+    val artwork = remember(color, density, elevation) {
+        PaperArtwork(NoteColors[color].toInt(), density, shadowDepth = elevation.value)
+    }
+    Surface(color = Color.Transparent, shape = RectangleShape, shadowElevation = 0.dp,
         modifier = modifier) {
-        Box(Modifier.background(Brush.verticalGradient(listOf(Color.White.copy(alpha = .18f), Color.Transparent,
-            Color.Black.copy(alpha = .035f)))).drawWithContent {
-            drawContent()
-            val edge = 22.dp.toPx()
-            drawPath(Path().apply {
-                moveTo(size.width - edge, size.height)
-                lineTo(size.width - edge, size.height - edge)
-                lineTo(size.width, size.height - edge)
-                close()
-            }, Color(0x99FFFAE8))
+        Box(Modifier.drawBehind {
+            drawIntoCanvas { artwork.draw(it.nativeCanvas, size.width, size.height) }
         }) { content() }
     }
 }
@@ -86,11 +81,6 @@ internal fun PaperContent(note: Note, modifier: Modifier = Modifier, onEdit: () 
         Text("TOCA EL PAPEL PARA EDITAR", fontSize = 9.sp, letterSpacing = .4.sp, color = Ink.copy(alpha = .5f),
             maxLines = 1, modifier = Modifier.padding(top = 8.dp))
     }
-}
-
-@Composable
-private fun Tape() {
-    Box(Modifier.padding(top = 6.dp).size(48.dp, 14.dp).rotate(-3f).background(Color(0x88FFFCED)))
 }
 
 @Composable
@@ -113,7 +103,8 @@ internal fun NoteEditor(existing: Note?, onDismiss: () -> Unit, onSave: (Note) -
                     fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 PaperSurface(color, Modifier.fillMaxWidth(), elevation = 2.dp) {
                     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Tape()
+                        // The tape is now part of the paper artwork; keep the preview's existing spacing.
+                        Spacer(Modifier.height(20.dp))
                         Text(title.ifBlank { "Tu idea aquí" }, fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold,
                             fontSize = 23.sp, color = Ink, maxLines = 2, overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.fillMaxWidth().padding(top = 12.dp))

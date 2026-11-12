@@ -11,7 +11,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -152,14 +151,10 @@ class HomeNotesService : Service() {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            elevation = dp(6).toFloat()
-            background = GradientDrawable().apply {
-                setColor(NoteColors[note.color].toInt()); cornerRadius = dp(4).toFloat()
-                setStroke(dp(1), 0x223A3024)
-            }
-            clipToOutline = true
+            background = PaperDrawable(NoteColors[note.color].toInt(), resources.displayMetrics.density,
+                folded = !note.collapsed)
         }
-        val header = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL; setBackgroundColor(0x11000000) }
+        val header = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         val grip = TextView(this).apply {
             text = if (note.collapsed) note.title.ifBlank { "Mi nota" } else "⠿ MOVER"
             setTextColor(0xFF3A3024.toInt()); textSize = if (note.collapsed) 15f else 11f
